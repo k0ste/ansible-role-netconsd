@@ -1,0 +1,26 @@
+---
+- name: "netconsd | Deploy netconsd configuration"
+  ansible.builtin.template:
+    src: "netconsd.j2"
+    dest: "{{ hostvars[inventory_hostname]['netconsd_dest'] + '/netconsd' }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  when:
+    - "vars['netconsd_settings'] is defined"
+    - "vars['netconsd_settings'] != []"
+  notify:
+    - "Restart netconsd"
+- name: "netconsd | Enable netconsd service"
+  ansible.builtin.systemd:
+    name: "{{ hostvars[inventory_hostname]['netconsd_service'] }}"
+    enabled: "yes"
+  when:
+    - "hostvars[inventory_hostname]['netconsd'] is defined"
+    - "hostvars[inventory_hostname]['netconsd'] != ''"
+    - "hostvars[inventory_hostname]['netconsd'] |
+       community.general.json_query(vars['netconsd_enable']) is defined"
+    - "hostvars[inventory_hostname]['netconsd'] |
+       community.general.json_query(vars['netconsd_enable']) == 'true'"
+  vars:
+    netconsd_enable: "[] | map(&enable || 'false', @) | [0]"

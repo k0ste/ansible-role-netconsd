@@ -1,0 +1,43 @@
+{{ '## netconsd' }}
+{{ '# ' + ansible_managed }}
+{{ '# Do not edit manually' }}
+
+{% if vars['netconsd_settings'] is defined and
+  vars['netconsd_settings'] != '' %}
+{% for n in vars['netconsd_settings'] %}
+{% if loop['first'] %}
+{{ 'NETCONSD_ARGS=\"' -}}
+{% endif %}
+{% if n['workers'] is defined and n['workers'] != '' %}
+{{ ' -w ' ~ n['workers'] -}}
+{% endif %}
+{% if n['listeners'] is defined and n['listeners'] != '' %}
+{{ ' -l ' ~ n['listeners'] -}}
+{% endif %}
+{% if n['mmsg_batch'] is defined and n['mmsg_batch'] != '' %}
+{{ ' -b ' ~ n['mmsg_batch'] -}}
+{% endif %}
+{% if n['listen_address'] is defined and (n['listen_address'] != '' and
+  n['listen_address'] | ansible.utils.ipaddr('address') ) %}
+{{ ' -a ' + n['listen_address'] -}}
+{% endif %}
+{% if n['listen_port'] is defined and n['listen_port'] != '' %}
+{{ ' -u ' ~ n['listen_port'] -}}
+{% endif %}
+{% if n['module'] is defined and n['module'] != '' %}
+{% if n['module'] is string %}
+{{ ' ' + hostvars[inventory_hostname]['netconsd_module_path'] + '/' +
+  n['module'] -}}
+{% elif n['module'] is sequence %}
+{% for nm in n['module' ] %}
+{{ ' ' + hostvars[inventory_hostname]['netconsd_module_path'] + '/' + nm -}}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if loop['last'] %}
+{{- '\"' }}
+{% endif %}
+{% endfor %}
+{% else %}
+{{ 'NETCONSD_ARGS=""' }}
+{% endif %}

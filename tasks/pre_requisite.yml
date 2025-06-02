@@ -1,0 +1,44 @@
+---
+- name: "netconsd | Assert that system manager is systemd"
+  ansible.builtin.assert:
+    that:
+      - "hostvars[inventory_hostname]['ansible_service_mgr'] == 'systemd'"
+    fail_msg: "System manager is not systemd"
+    quiet: "true"
+- name: "netconsd | Add the OS specific variables"
+  ansible.builtin.include_vars:
+    file: "{{ hostvars[inventory_hostname]['ansible_os_family'] + '.yml' }}"
+- name: "netconsd | Set facts about netconsd role"
+  ansible.builtin.set_fact:
+    netconsd_settings: "{{ hostvars[inventory_hostname]['netconsd'] |
+      community.general.json_query('[].settings[]') }}"
+    netconsd_package_state: "{{ hostvars[inventory_hostname]['netconsd'] |
+      community.general.json_query('[].package_state | [0]') }}"
+- name: "netconsd | Assert that netconsd package state in valid value"
+  ansible.builtin.assert:
+    that:
+      - "vars['netconsd_package_state'] in ['present', 'latest']"
+    fail_msg: "'package_state' must be in 'present' or 'latest'"
+    quiet: "true"
+  when:
+    - "vars['netconsd_package_state'] is defined"
+    - "vars['netconsd_package_state'] != ''"
+    - "vars['netconsd_package_state'] != []"
+- name: "netconsd | Set netconsd package state to present state from empty
+    state"
+  ansible.builtin.set_fact:
+    netconsd_package_state: 'present'
+  when:
+    - "vars['netconsd_package_state'] is defined"
+    - "vars['netconsd_package_state'] == ''"
+- name: "netconsd | Create catalogs"
+  ansible.builtin.file:
+    path: "{{ hostvars[inventory_hostname]['netconsd_dest'] }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  when:
+    - "vars['netconsd_settings'] is defined"
+    - "vars['netconsd_settings'] != ''"
+    - "vars['netconsd_settings'] != []"

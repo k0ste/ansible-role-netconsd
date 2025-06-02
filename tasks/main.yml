@@ -1,0 +1,19 @@
+---
+- name: "netconsd | Include pre requisite tasks"
+  ansible.builtin.import_tasks:
+    file: "pre_requisite.yml"
+- name: "netconsd | Include packages tasks"
+  ansible.builtin.include_tasks:
+    file: "packages.yml"
+  when:
+    - "hostvars[inventory_hostname]['netconsd'] is defined"
+    - "hostvars[inventory_hostname]['netconsd'] != ''"
+    - "hostvars[inventory_hostname]['netconsd'] |
+       community.general.json_query(vars['netconsd_install_package']) is defined"
+    - "hostvars[inventory_hostname]['netconsd'] |
+       community.general.json_query(vars['netconsd_install_package']) == 'true'"
+  vars:
+    netconsd_install_package: "[] | map(&install_package || 'false', @) | [0]"
+- name: "netconsd | Include deployment tasks"
+  ansible.builtin.import_tasks:
+    file: "deploy.yml"

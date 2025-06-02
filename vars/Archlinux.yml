@@ -1,0 +1,5 @@
+---
+netconsd_service: 'netconsd'
+netconsd_package: 'netconsd'
+netconsd_dest: '/etc/conf.d'
+netconsd_module_path: '/usr/lib/netconsd'
