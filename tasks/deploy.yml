@@ -9,6 +9,8 @@
   when:
     - "vars['netconsd_settings'] is defined"
     - "vars['netconsd_settings'] != []"
+    - "vars['netconsd_settings'] != ''"
+    - "vars['netconsd_settings'] != None"
   notify:
     - "Restart netconsd"
 - name: "netconsd | Enable netconsd service"

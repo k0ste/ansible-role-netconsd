@@ -21,8 +21,7 @@
       ansible.builtin.apt:
         name: "{{ hostvars[inventory_hostname]['netconsd_package'] }}"
         state: "{{ vars['netconsd_package_state'] | default(omit) }}"
-- name: "netconsd | Install the required packages in ArchLinux
-    derivatives"
+- name: "netconsd | Install the required packages in ArchLinux derivatives"
   when:
     - "hostvars[inventory_hostname]['ansible_os_family'] == 'Archlinux'"
   block:

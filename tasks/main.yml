@@ -9,7 +9,8 @@
     - "hostvars[inventory_hostname]['netconsd'] is defined"
     - "hostvars[inventory_hostname]['netconsd'] != ''"
     - "hostvars[inventory_hostname]['netconsd'] |
-       community.general.json_query(vars['netconsd_install_package']) is defined"
+       community.general.json_query(vars['netconsd_install_package']) is
+       defined"
     - "hostvars[inventory_hostname]['netconsd'] |
        community.general.json_query(vars['netconsd_install_package']) == 'true'"
   vars:

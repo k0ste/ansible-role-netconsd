@@ -22,15 +22,17 @@
     quiet: "true"
   when:
     - "vars['netconsd_package_state'] is defined"
-    - "vars['netconsd_package_state'] != ''"
     - "vars['netconsd_package_state'] != []"
+    - "vars['netconsd_package_state'] != ''"
+    - "vars['netconsd_package_state'] != None"
 - name: "netconsd | Set netconsd package state to present state from empty
     state"
   ansible.builtin.set_fact:
     netconsd_package_state: 'present'
   when:
     - "vars['netconsd_package_state'] is defined"
-    - "vars['netconsd_package_state'] == ''"
+    - "(vars['netconsd_package_state'] == '' or
+      vars['netconsd_package_state'] != None)"
 - name: "netconsd | Create catalogs"
   ansible.builtin.file:
     path: "{{ hostvars[inventory_hostname]['netconsd_dest'] }}"
