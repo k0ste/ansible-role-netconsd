@@ -6,13 +6,11 @@
   ansible.builtin.include_tasks:
     file: "packages.yml"
   when:
-    - "hostvars[inventory_hostname]['netconsd'] is defined"
-    - "hostvars[inventory_hostname]['netconsd'] != ''"
-    - "hostvars[inventory_hostname]['netconsd'] |
-       community.general.json_query(vars['netconsd_install_package']) is
-       defined"
-    - "hostvars[inventory_hostname]['netconsd'] |
-       community.general.json_query(vars['netconsd_install_package']) == 'true'"
+    - "lookup('ansible.builtin.vars', 'netconsd', default='')
+      not in ['', [], '[]', None]"
+    - "lookup('ansible.builtin.vars', 'netconsd') |
+       community.general.json_query(lookup('ansible.builtin.vars',
+      'netconsd_install_package', default='')) == 'true'"
   vars:
     netconsd_install_package: "[] | map(&install_package || 'false', @) | [0]"
 - name: "netconsd | Include deployment tasks"

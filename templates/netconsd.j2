@@ -2,35 +2,38 @@
 {{ '# ' + ansible_managed }}
 {{ '# Do not edit manually' }}
 
-{% if vars['netconsd_settings'] is defined and
-  vars['netconsd_settings'] != '' %}
-{% for n in vars['netconsd_settings'] %}
+{% if lookup('ansible.builtin.vars', 'netconsd_settings', default='')
+  not in ['', [], '[]', None] %}
+{% for n in lookup('ansible.builtin.vars', 'netconsd_settings') %}
 {% if loop['first'] %}
 {{ 'NETCONSD_ARGS=\"' -}}
 {% endif %}
-{% if n['workers'] is defined and n['workers'] != '' %}
+{% if n['workers'] is defined and n['workers'] not in ['', [], '[]', None] %}
 {{ ' -w ' ~ n['workers'] -}}
 {% endif %}
-{% if n['listeners'] is defined and n['listeners'] != '' %}
+{% if n['listeners'] is defined and n['listeners']
+  not in ['', [], '[]', None] %}
 {{ ' -l ' ~ n['listeners'] -}}
 {% endif %}
-{% if n['mmsg_batch'] is defined and n['mmsg_batch'] != '' %}
+{% if n['mmsg_batch'] is defined and n['mmsg_batch']
+  not in ['', [], '[]', None] %}
 {{ ' -b ' ~ n['mmsg_batch'] -}}
 {% endif %}
-{% if n['listen_address'] is defined and (n['listen_address'] != '' and
-  n['listen_address'] | ansible.utils.ipaddr('address') ) %}
+{% if n['listen_address'] is defined and (n['listen_address']
+  not in ['', [], '[]', None] and n['listen_address'] is ansible.utils.ip()) %}
 {{ ' -a ' + n['listen_address'] -}}
 {% endif %}
-{% if n['listen_port'] is defined and n['listen_port'] != '' %}
+{% if n['listen_port'] is defined and n['listen_port']
+  not in ['', [], '[]', None] %}
 {{ ' -u ' ~ n['listen_port'] -}}
 {% endif %}
-{% if n['module'] is defined and n['module'] != '' %}
+{% if n['module'] is defined and n['module'] not in ['', [], '[]', None] %}
 {% if n['module'] is string %}
-{{ ' ' + hostvars[inventory_hostname]['netconsd_module_path'] + '/' +
+{{ ' ' + lookup('ansible.builtin.vars', 'netconsd_module_path') + '/' +
   n['module'] -}}
 {% elif n['module'] is sequence %}
 {% for nm in n['module' ] %}
-{{ ' ' + hostvars[inventory_hostname]['netconsd_module_path'] + '/' + nm -}}
+{{ ' ' + lookup('ansible.builtin.vars', 'netconsd_module_path') + '/' + nm -}}
 {% endfor %}
 {% endif %}
 {% endif %}

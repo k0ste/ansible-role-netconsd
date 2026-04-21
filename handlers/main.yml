@@ -1,14 +1,14 @@
 ---
-- name: "Restart netconsd"
+- name: "netconsd | Restart netconsd"
   ansible.builtin.systemd:
-    name: "{{ hostvars[inventory_hostname]['netconsd_service'] }}"
+    name: "{{ lookup('ansible.builtin.vars', 'netconsd_service') }}"
     state: "restarted"
+  listen: "Restart netconsd"
   when:
-    - "hostvars[inventory_hostname]['netconsd'] is defined"
-    - "hostvars[inventory_hostname]['netconsd'] != ''"
-    - "hostvars[inventory_hostname]['netconsd'] |
-       community.general.json_query(vars['netconsd_restart']) is defined"
-    - "hostvars[inventory_hostname]['netconsd'] |
-       community.general.json_query(vars['netconsd_restart']) == 'true'"
+    - "lookup('ansible.builtin.vars', 'netconsd', default='')
+      not in ['', [], '[]', None]"
+    - "lookup('ansible.builtin.vars', 'netconsd') |
+       community.general.json_query(lookup('ansible.builtin.vars',
+      'netconsd_restart', default='')) == 'true'"
   vars:
     netconsd_restart: "[] | map(&restart || 'false', @) | [0]"
